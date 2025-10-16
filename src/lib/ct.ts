@@ -163,9 +163,14 @@ export async function createBundleProduct(bundle: any, productType: any, campaig
     // Debug: Log bundle data before processing images
     console.log(`🔍 CT: Bundle data for "${bundleName}":`, {
       bundleImageUrl: bundle.bundleImageUrl,
+      bundleImageUrlType: typeof bundle.bundleImageUrl,
       childProductImages: bundle.childProductImages,
+      childProductImagesLength: bundle.childProductImages?.length || 0,
       hasImages: !!(bundle.bundleImageUrl || (bundle.childProductImages && bundle.childProductImages.length > 0))
     });
+
+    // Log all bundle properties to debug what's being passed
+    console.log(`🔍 CT: All bundle properties for "${bundleName}":`, Object.keys(bundle));
 
     // Prepare images for the bundle product
     const images = [];

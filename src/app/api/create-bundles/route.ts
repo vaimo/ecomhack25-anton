@@ -25,6 +25,8 @@ const RequestBody = z.object({
       skus: z.array(z.string()),
       rationale: z.string().optional(),
       heroImageIdea: z.string().optional(),
+      bundleImageUrl: z.string().optional(),
+      childProductImages: z.array(z.string()).optional(),
     })),
     overallStrategy: z.string().optional(),
     targetAudience: z.string().optional(),

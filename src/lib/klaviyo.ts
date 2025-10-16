@@ -213,6 +213,7 @@ export function generateCampaignHTML(bundles: any[], theme: string, bundleCreati
       : '';
 
     console.log(`🖼️ Klaviyo: Bundle "${bundle.name}" image - Original: ${bundleImageUrl}, Absolute: ${absoluteBundleImageUrl}`);
+    console.log(`🖼️ Klaviyo: Bundle "${bundle.name}" has bundle image: ${!!bundleImageUrl}, includes placeholder: ${bundleImageUrl?.includes('placeholder')}`);
 
     return `
     <div style="margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #fff;">
