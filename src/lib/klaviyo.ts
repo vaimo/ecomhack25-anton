@@ -181,6 +181,17 @@ export async function createDraftCampaign(campaignData: CampaignData) {
 }
 
 export function generateCampaignHTML(bundles: any[], theme: string, bundleCreationResult?: any): string {
+  // Helper function to convert relative URLs to absolute URLs
+  const getAbsoluteImageUrl = (imageUrl: string): string => {
+    if (!imageUrl) return '';
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl; // Already absolute
+    }
+    // Convert relative URL to absolute using deployed domain
+    const baseUrl = 'https://ecomhack25-anton.vercel.app';
+    return `${baseUrl}${imageUrl}`;
+  };
+
   const bundleHTML = bundles.map(bundle => {
     // Find the corresponding created product if available
     const createdProduct = bundleCreationResult?.bundleResult?.products?.find((p: any) => p.name === bundle.name);
@@ -194,11 +205,14 @@ export function generateCampaignHTML(bundles: any[], theme: string, bundleCreati
       ? `https://your-store.com/products/${createdProduct.slug}`
       : checkoutUrl;
 
-    // Bundle image handling
+    // Bundle image handling with absolute URL conversion
     const bundleImageUrl = (bundle as any).bundleImageUrl;
-    const bundleImageHTML = bundleImageUrl && !bundleImageUrl.includes('placeholder')
-      ? `<img src="${bundleImageUrl}" alt="${bundle.name}" style="max-width: 300px; height: auto; border-radius: 8px; margin: 10px 0;" />`
+    const absoluteBundleImageUrl = getAbsoluteImageUrl(bundleImageUrl);
+    const bundleImageHTML = absoluteBundleImageUrl && !absoluteBundleImageUrl.includes('placeholder')
+      ? `<img src="${absoluteBundleImageUrl}" alt="${bundle.name}" style="max-width: 300px; height: auto; border-radius: 8px; margin: 10px 0;" />`
       : '';
+
+    console.log(`🖼️ Klaviyo: Bundle "${bundle.name}" image - Original: ${bundleImageUrl}, Absolute: ${absoluteBundleImageUrl}`);
 
     return `
     <div style="margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #fff;">

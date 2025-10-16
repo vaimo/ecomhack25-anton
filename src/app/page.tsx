@@ -405,27 +405,37 @@ export default function Home() {
                     ? 'border-blue-500 bg-blue-50 shadow-md'
                     : 'border-gray-200 bg-gray-50'
                 }`}>
-                  <div className="flex items-start gap-3 mb-3">
+                  <div className="flex items-start gap-4">
                     <input
                       type="checkbox"
                       checked={selectedBundles.has(index)}
                       onChange={() => toggleBundle(index)}
-                      className="mt-1 h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
+                      className="mt-1 h-4 w-4 text-blue-600 rounded focus:ring-blue-500 flex-shrink-0"
                     />
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-lg">{bundle.name}</h3>
-                          {/* Bundle Image Preview */}
-                          {bundle.bundleImageUrl && !bundle.bundleImageUrl.includes('placeholder') && (
-                            <img
-                              src={bundle.bundleImageUrl}
-                              alt={bundle.name}
-                              className="w-8 h-8 rounded object-cover border"
-                            />
-                          )}
+
+                    {/* Bundle Image on the left */}
+                    <div className="flex-shrink-0">
+                      {bundle.bundleImageUrl && !bundle.bundleImageUrl.includes('placeholder') ? (
+                        <img
+                          src={bundle.bundleImageUrl}
+                          alt={bundle.name}
+                          className="w-32 h-32 rounded-lg object-cover border shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-32 h-32 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
+                          <span className="text-gray-400 text-xs text-center px-2">
+                            Bundle Image
+                          </span>
                         </div>
-                        <div className="text-right">
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h3 className="font-semibold text-lg">{bundle.name}</h3>
+                        </div>
+                        <div className="text-right flex-shrink-0 ml-4">
                           <span className="text-2xl font-bold text-green-600">
                             ${(bundle.targetPrice / 100).toFixed(2)}
                           </span>

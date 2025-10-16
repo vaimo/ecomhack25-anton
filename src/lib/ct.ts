@@ -155,8 +155,8 @@ export async function createBundleProduct(bundle: any, productType: any, campaig
       if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
         return imageUrl; // Already absolute
       }
-      // Convert relative URL to absolute using environment variable
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3002';
+      // Convert relative URL to absolute using deployed domain
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ecomhack25-anton.vercel.app';
       return `${baseUrl}${imageUrl}`;
     };
 
