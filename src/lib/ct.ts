@@ -237,7 +237,7 @@ export async function createBundleProduct(bundle: any, productType: any, campaig
                 centAmount: bundle.targetPrice
               }
             }],
-            images: images.length > 0 ? images : undefined,
+            images: images.length > 0 ? images as any : undefined,
             attributes: [
               {
                 name: 'bundleSkus',

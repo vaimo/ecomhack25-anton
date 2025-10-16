@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm install)",
+      "Bash(npm install:*)",
+      "Bash(node:*)",
+      "Bash(KLAVIYO_API_KEY=pk_2b8ded0d3c5e4af3f08f11b4c6af281a13 node test-klaviyo.js)",
+      "WebFetch(domain:developers.klaviyo.com)",
+      "WebSearch",
+      "Bash(KLAVIYO_API_KEY=pk_2b8ded0d3c5e4af3f08f11b4c6af281a13 node -e \"\nconst klaviyo = require(''./src/lib/klaviyo.ts'');\nconst testPlan = {\n  theme: ''Test Theme'',\n  bundles: [{\n    name: ''Test Bundle'',\n    emailBlurb: ''Test email blurb'',\n    targetPrice: 2999,\n    discountPercent: 20,\n    skus: [''test-sku'']\n  }],\n  customHtml: ''<html><body><h1>POLISHED TEST HTML</h1></body></html>''\n};\n\nconsole.log(''Testing Klaviyo with customHtml...'');\nconsole.log(''Input customHtml:'', testPlan.customHtml);\n\nklaviyo.createBundleCampaign(testPlan.bundles, testPlan.theme, testPlan.customHtml)\n  .then(result => {\n    console.log(''Campaign created:'', result);\n  })\n  .catch(error => {\n    console.error(''Error:'', error);\n  });\n\")",
+      "Bash(npm run build:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

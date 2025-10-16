@@ -70,8 +70,8 @@ export async function POST(req: NextRequest) {
 }
 
 async function saveImageLocally(imageUrl: string, bundleName: string, theme: string): Promise<string> {
-  const fs = require('fs').promises;
-  const path = require('path');
+  const { promises: fs } = await import('fs');
+  const path = await import('path');
 
   try {
     // Create a safe filename

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createBundleCampaign } from '@/lib/klaviyo';
 import { polishCopy } from '@/lib/ai';
-import type { CampaignPlan } from '@/lib/ai';
 import { z } from 'zod';
 
 const RequestBody = z.object({
@@ -57,7 +56,7 @@ export async function POST(req: NextRequest) {
     }
     const campaignResult = await createBundleCampaign(processedBundles, plan.theme, customHtml, bundleCreationResult);
 
-    const response = {
+    const response: any = {
       success: true,
       campaign: campaignResult,
       summary: {

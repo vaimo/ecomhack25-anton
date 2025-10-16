@@ -576,19 +576,19 @@ export default function Home() {
               </div>
               <div className="bg-green-50 p-4 rounded">
                 <div className="text-2xl font-bold text-green-600">
-                  ${(getSelectedPlan()?.bundles.reduce((sum, b) => sum + b.targetPrice, 0) / 100 || 0).toFixed(0)}
+                  ${((getSelectedPlan()?.bundles?.reduce((sum, b) => sum + b.targetPrice, 0) || 0) / 100).toFixed(0)}
                 </div>
                 <div className="text-sm text-gray-600">Total Value</div>
               </div>
               <div className="bg-purple-50 p-4 rounded">
                 <div className="text-2xl font-bold text-purple-600">
-                  {Math.round((getSelectedPlan()?.bundles.reduce((sum, b) => sum + b.discountPercent, 0) || 0) / selectedBundles.size || 0)}%
+                  {Math.round((getSelectedPlan()?.bundles?.reduce((sum, b) => sum + b.discountPercent, 0) || 0) / selectedBundles.size || 0)}%
                 </div>
                 <div className="text-sm text-gray-600">Avg Discount</div>
               </div>
               <div className="bg-orange-50 p-4 rounded">
                 <div className="text-2xl font-bold text-orange-600">
-                  {getSelectedPlan()?.bundles.reduce((sum, b) => sum + b.skus.length, 0) || 0}
+                  {getSelectedPlan()?.bundles?.reduce((sum, b) => sum + b.skus.length, 0) || 0}
                 </div>
                 <div className="text-sm text-gray-600">Products Bundled</div>
               </div>

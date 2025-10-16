@@ -104,7 +104,7 @@ Create compelling bundles that maximize conversion and AOV. Consider product ima
           const product = input.catalogSample.find(p => p.id === sku);
           return product?.mainImage;
         })
-        .filter(Boolean); // Remove null/undefined images
+        .filter((image): image is string => Boolean(image)); // Remove null/undefined images
 
       // Generate a bundle image URL using DALL-E
       const bundleImageUrl = await generateBundleImage(childProductImages, bundleName, input.theme, input.catalogSample);
@@ -194,8 +194,8 @@ async function generateBundleImage(childProductImages: string[], bundleName: str
 }
 
 async function saveImageLocally(imageUrl: string, bundleName: string, theme: string): Promise<string> {
-  const fs = require('fs').promises;
-  const path = require('path');
+  const { promises: fs } = await import('fs');
+  const path = await import('path');
 
   try {
     // Create a safe filename

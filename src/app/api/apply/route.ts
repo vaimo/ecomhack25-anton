@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ct } from '@/lib/ct';
-import type { CampaignPlan } from '@/lib/ai';
 import { z } from 'zod';
 
 const RequestBody = z.object({

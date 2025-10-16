@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createBundleProducts } from '@/lib/ct';
 import { z } from 'zod';
 
+interface BundleWithImages {
+  name: string;
+  emailBlurb: string;
+  targetPrice: number;
+  discountPercent: number;
+  skus: string[];
+  rationale?: string;
+  heroImageIdea?: string;
+  bundleImageUrl?: string;
+  childProductImages?: string[];
+}
+
 const RequestBody = z.object({
   plan: z.object({
     theme: z.string(),
@@ -30,7 +42,7 @@ export async function POST(req: NextRequest) {
     console.log(`📝 Request parsed: theme="${plan.theme}", bundles=${plan.bundles.length}`);
 
     // Debug: Log bundle image data
-    plan.bundles.forEach((bundle: any, index: number) => {
+    plan.bundles.forEach((bundle: BundleWithImages, index: number) => {
       console.log(`🔍 API Bundle ${index + 1} "${bundle.name}":`, {
         hasBundleImageUrl: !!bundle.bundleImageUrl,
         bundleImageUrl: bundle.bundleImageUrl,

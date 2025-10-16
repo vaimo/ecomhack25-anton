@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     const discountResult = await createBundleDiscountsAndCodes(bundles, campaignTheme);
     console.log(`✅ [${Date.now() - startTime}ms] Discount creation completed in ${Date.now() - discountStartTime}ms - ${discountResult.successfulDiscounts}/${discountResult.totalBundles} successful`);
 
-    let checkoutSessions = [];
+    let checkoutSessions: any[] = [];
     if (createCheckoutSessions && process.env.STRIPE_SECRET_KEY) {
       // Create Stripe checkout sessions
       const checkoutStartTime = Date.now();

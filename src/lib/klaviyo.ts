@@ -180,7 +180,7 @@ export async function createDraftCampaign(campaignData: CampaignData) {
   }
 }
 
-export function generateCampaignHTML(bundles: Bundle[], theme: string, bundleCreationResult?: any): string {
+export function generateCampaignHTML(bundles: any[], theme: string, bundleCreationResult?: any): string {
   const bundleHTML = bundles.map(bundle => {
     // Find the corresponding created product if available
     const createdProduct = bundleCreationResult?.bundleResult?.products?.find((p: any) => p.name === bundle.name);
@@ -259,7 +259,7 @@ export function generateCampaignHTML(bundles: Bundle[], theme: string, bundleCre
   `;
 }
 
-export async function createBundleCampaign(bundles: Bundle[], theme: string, customHtml?: string, bundleCreationResult?: any) {
+export async function createBundleCampaign(bundles: any[], theme: string, customHtml?: string, bundleCreationResult?: any) {
   console.log(`🎯 Klaviyo: Creating bundle campaign for "${theme}" with ${bundles.length} bundles`);
   console.log(`🔍 Klaviyo: Function parameters check:`, {
     hasCustomHtml: !!customHtml,
