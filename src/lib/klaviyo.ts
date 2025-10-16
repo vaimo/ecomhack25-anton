@@ -205,15 +205,25 @@ export function generateCampaignHTML(bundles: any[], theme: string, bundleCreati
       ? `https://your-store.com/products/${createdProduct.slug}`
       : checkoutUrl;
 
-    // Bundle image handling with absolute URL conversion
-    const bundleImageUrl = (bundle as any).bundleImageUrl;
-    const absoluteBundleImageUrl = getAbsoluteImageUrl(bundleImageUrl);
-    const bundleImageHTML = absoluteBundleImageUrl && !absoluteBundleImageUrl.includes('placeholder')
-      ? `<img src="${absoluteBundleImageUrl}" alt="${bundle.name}" style="max-width: 300px; height: auto; border-radius: 8px; margin: 10px 0;" />`
-      : '';
+    // Bundle image handling - prioritize commercetools product images over original bundle image
+    let bundleImageHTML = '';
 
-    console.log(`🖼️ Klaviyo: Bundle "${bundle.name}" image - Original: ${bundleImageUrl}, Absolute: ${absoluteBundleImageUrl}`);
-    console.log(`🖼️ Klaviyo: Bundle "${bundle.name}" has bundle image: ${!!bundleImageUrl}, includes placeholder: ${bundleImageUrl?.includes('placeholder')}`);
+    // First try to use images from the created commercetools product
+    if (createdProduct && createdProduct.productImages && createdProduct.productImages.length > 0) {
+      const productImage = createdProduct.productImages[0]; // Use the first image
+      console.log(`🖼️ Klaviyo: Using commercetools product image for "${bundle.name}": ${productImage.url}`);
+      bundleImageHTML = `<img src="${productImage.url}" alt="${bundle.name}" style="max-width: 300px; height: auto; border-radius: 8px; margin: 10px 0;" />`;
+    } else {
+      // Fallback to original bundle image if no commercetools images
+      const bundleImageUrl = (bundle as any).bundleImageUrl;
+      const absoluteBundleImageUrl = getAbsoluteImageUrl(bundleImageUrl);
+      if (absoluteBundleImageUrl && !absoluteBundleImageUrl.includes('placeholder')) {
+        console.log(`🖼️ Klaviyo: Using original bundle image for "${bundle.name}": ${absoluteBundleImageUrl}`);
+        bundleImageHTML = `<img src="${absoluteBundleImageUrl}" alt="${bundle.name}" style="max-width: 300px; height: auto; border-radius: 8px; margin: 10px 0;" />`;
+      } else {
+        console.log(`🖼️ Klaviyo: No valid images found for bundle "${bundle.name}"`);
+      }
+    }
 
     return `
     <div style="margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #fff;">

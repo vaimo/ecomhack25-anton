@@ -362,7 +362,8 @@ export async function createBundleProducts(bundles: any[], campaignTheme: string
           productId: product.id,
           productKey: product.key,
           sku: product.masterData.current.masterVariant.sku,
-          slug: product.masterData.current.slug?.en
+          slug: product.masterData.current.slug?.en,
+          productImages: product.masterData.current.masterVariant.images || []
         });
       } catch (error) {
         const bundleName = bundle.name || `${campaignTheme} Bundle`;
