@@ -150,14 +150,42 @@ export async function createBundleProduct(bundle: any, productType: any, campaig
   console.log(`🛍️ CT: Creating bundle product: ${bundleName}`);
 
   try {
-    // Helper function to convert relative URLs to absolute URLs
+    // Helper function to convert relative URLs to absolute URLs and validate them
     const getAbsoluteImageUrl = (imageUrl: string): string => {
-      if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-        return imageUrl; // Already absolute
+      if (!imageUrl || typeof imageUrl !== 'string') {
+        console.warn(`⚠️ CT: Invalid image URL: ${imageUrl}`);
+        return '';
       }
+
+      // Remove any control characters or invalid characters from URL
+      const sanitizedUrl = imageUrl
+        .replace(/[\u0000-\u001f\u007f-\u009f]/g, '') // Remove control characters
+        .trim();
+
+      if (sanitizedUrl.startsWith('http://') || sanitizedUrl.startsWith('https://')) {
+        // Validate the URL format
+        try {
+          const url = new URL(sanitizedUrl);
+          console.log(`✅ CT: Valid absolute URL: ${url.href}`);
+          return url.href; // Return the validated URL
+        } catch (urlError) {
+          console.warn(`⚠️ CT: Invalid URL format: ${sanitizedUrl}`, urlError);
+          return '';
+        }
+      }
+
       // Convert relative URL to absolute using deployed domain
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ecomhack25-anton.vercel.app';
-      return `${baseUrl}${imageUrl}`;
+      const fullUrl = `${baseUrl}${sanitizedUrl}`;
+
+      try {
+        const url = new URL(fullUrl);
+        console.log(`✅ CT: Converted to absolute URL: ${url.href}`);
+        return url.href;
+      } catch (urlError) {
+        console.warn(`⚠️ CT: Failed to create absolute URL: ${fullUrl}`, urlError);
+        return '';
+      }
     };
 
     // Debug: Log bundle data before processing images
@@ -176,25 +204,33 @@ export async function createBundleProduct(bundle: any, productType: any, campaig
     const images = [];
     if (bundle.bundleImageUrl) {
       const absoluteImageUrl = getAbsoluteImageUrl(bundle.bundleImageUrl);
-      console.log(`🖼️ CT: Adding bundle image to product: ${absoluteImageUrl}`);
-      images.push({
-        url: absoluteImageUrl,
-        label: `${bundleName} - Bundle Image`
-      });
+      if (absoluteImageUrl) {
+        console.log(`🖼️ CT: Adding bundle image to product: ${absoluteImageUrl}`);
+        images.push({
+          url: absoluteImageUrl,
+          label: `${bundleName} - Bundle Image`
+        });
+      } else {
+        console.warn(`⚠️ CT: Skipping invalid bundle image URL for "${bundleName}"`);
+      }
     } else {
       console.warn(`⚠️ CT: No bundle image URL found for bundle "${bundleName}"`);
     }
 
     // Add child product images as additional images
     if (bundle.childProductImages && bundle.childProductImages.length > 0) {
-      console.log(`📸 CT: Adding ${bundle.childProductImages.length} child product images`);
+      console.log(`📸 CT: Processing ${bundle.childProductImages.length} child product images`);
       bundle.childProductImages.forEach((imageUrl: string, index: number) => {
         const absoluteImageUrl = getAbsoluteImageUrl(imageUrl);
-        console.log(`  - Child image ${index + 1}: ${absoluteImageUrl}`);
-        images.push({
-          url: absoluteImageUrl,
-          label: `${bundleName} - Product ${index + 1}`
-        });
+        if (absoluteImageUrl) {
+          console.log(`  - Child image ${index + 1}: ${absoluteImageUrl}`);
+          images.push({
+            url: absoluteImageUrl,
+            label: `${bundleName} - Product ${index + 1}`
+          });
+        } else {
+          console.warn(`  - Skipping invalid child image ${index + 1}: ${imageUrl}`);
+        }
       });
     } else {
       console.warn(`⚠️ CT: No child product images found for bundle "${bundleName}"`);
@@ -210,59 +246,85 @@ export async function createBundleProduct(bundle: any, productType: any, campaig
       .replace(/-+/g, '-') // Replace multiple hyphens with single
       .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
 
+    // Sanitize text fields to prevent JSON validation errors
+    const sanitizeText = (text: string): string => {
+      return text
+        .replace(/[\u0000-\u001f\u007f-\u009f]/g, '') // Remove control characters
+        .replace(/[^\x20-\x7E\u00A0-\uFFFF]/g, '') // Keep only printable characters
+        .trim();
+    };
+
+    const sanitizedBundleName = sanitizeText(bundleName);
+    const sanitizedBundleDescription = sanitizeText(bundleDescription);
+    const sanitizedSlug = cleanSlug || `bundle-${Date.now()}`;
+
+    // Prepare the request payload
+    const requestPayload = {
+      key: `bundle-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      productType: {
+        typeId: 'product-type',
+        id: productType.id
+      },
+      name: {
+        en: sanitizedBundleName,
+        'en-US': sanitizedBundleName,
+        'en-GB': sanitizedBundleName
+      },
+      description: {
+        en: sanitizedBundleDescription,
+        'en-US': sanitizedBundleDescription,
+        'en-GB': sanitizedBundleDescription
+      },
+      slug: {
+        en: sanitizedSlug,
+        'en-US': sanitizedSlug,
+        'en-GB': sanitizedSlug
+      },
+      masterVariant: {
+        sku: `bundle-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        prices: [{
+          value: {
+            currencyCode: 'USD',
+            centAmount: typeof bundle.targetPrice === 'number' && bundle.targetPrice > 0 ? Math.round(bundle.targetPrice) : 1000
+          }
+        }],
+        images: images.length > 0 ? images : undefined,
+        attributes: [
+          {
+            name: 'bundleSkus',
+            value: Array.isArray(bundle.skus) ? bundle.skus.filter(sku => sku && typeof sku === 'string') : []
+          },
+          {
+            name: 'discountPercent',
+            value: typeof bundle.discountPercent === 'number' ? bundle.discountPercent : 0
+          },
+          {
+            name: 'campaignTheme',
+            value: sanitizeText(campaignTheme)
+          },
+          {
+            name: 'aiGenerated',
+            value: true
+          }
+        ]
+      }
+    };
+
+    // Log the complete payload for debugging
+    console.log(`🔍 CT: Complete request payload for "${sanitizedBundleName}":`, JSON.stringify(requestPayload, null, 2));
+
+    // Validate JSON serialization before sending
+    try {
+      JSON.stringify(requestPayload);
+      console.log(`✅ CT: JSON validation passed for "${sanitizedBundleName}"`);
+    } catch (jsonError) {
+      console.error(`❌ CT: JSON validation failed for "${sanitizedBundleName}":`, jsonError);
+      throw new Error(`Invalid JSON payload: ${jsonError}`);
+    }
+
     const productResponse = await ct.products()
       .post({
-        body: {
-          key: `bundle-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          productType: {
-            typeId: 'product-type',
-            id: productType.id
-          },
-          name: {
-            en: bundleName,
-            // Add fallback names in case en is not accepted
-            'en-US': bundleName,
-            'en-GB': bundleName
-          },
-          description: {
-            en: bundleDescription,
-            'en-US': bundleDescription,
-            'en-GB': bundleDescription
-          },
-          slug: {
-            en: cleanSlug || `bundle-${Date.now()}`,
-            'en-US': cleanSlug || `bundle-${Date.now()}`,
-            'en-GB': cleanSlug || `bundle-${Date.now()}`
-          },
-          masterVariant: {
-            sku: `bundle-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-            prices: [{
-              value: {
-                currencyCode: 'USD',
-                centAmount: bundle.targetPrice
-              }
-            }],
-            images: images.length > 0 ? images as any : undefined,
-            attributes: [
-              {
-                name: 'bundleSkus',
-                value: bundle.skus
-              },
-              {
-                name: 'discountPercent',
-                value: bundle.discountPercent
-              },
-              {
-                name: 'campaignTheme',
-                value: campaignTheme
-              },
-              {
-                name: 'aiGenerated',
-                value: true
-              }
-            ]
-          }
-        }
+        body: requestPayload
       })
       .execute();
 
