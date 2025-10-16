@@ -854,7 +854,7 @@ export default function Home() {
 
         {/* Demo Instructions */}
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-          <h3 className="font-semibold mb-2">🎯 4-Minute Demo Script</h3>
+          <h3 className="font-semibold mb-2">Instructions of use</h3>
           <ol className="list-decimal list-inside space-y-1 text-sm">
             <li><strong>Step 1:</strong> Enter a campaign theme (e.g., "Holiday Gift Sets")</li>
             <li><strong>Step 2:</strong> Click "Generate Plan" to create AI-powered bundles</li>
