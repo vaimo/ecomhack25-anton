@@ -169,8 +169,30 @@ export default function Home() {
         ? `https://your-store.com/products/${createdProduct.slug}`
         : "#shop-bundle";
 
+      // Bundle image handling - prioritize commercetools product images over original bundle image
+      let bundleImageHTML = '';
+
+      // First try to use the bundle image from the created commercetools product (first image is the bundle image)
+      if (createdProduct && createdProduct.productImages && createdProduct.productImages.length > 0) {
+        // Find the bundle image (first image with "Bundle Image" in the label, or just the first image)
+        const bundleImage = createdProduct.productImages.find((img: any) => img.label && img.label.includes('Bundle Image')) || createdProduct.productImages[0];
+        console.log(`🖼️ Frontend: Using commercetools bundle image for "${bundle.name}": ${bundleImage.url}`);
+        bundleImageHTML = `<img src="${bundleImage.url}" alt="${bundle.name}" style="max-width: 300px; height: auto; border-radius: 8px; margin: 10px 0;" />`;
+      } else {
+        // Fallback to original bundle image if no commercetools images
+        const bundleImageUrl = (bundle as any).bundleImageUrl;
+        if (bundleImageUrl && !bundleImageUrl.includes('placeholder')) {
+          const absoluteBundleImageUrl = bundleImageUrl.startsWith('http') ? bundleImageUrl : `https://ecomhack25-anton.vercel.app${bundleImageUrl}`;
+          console.log(`🖼️ Frontend: Using original bundle image for "${bundle.name}": ${absoluteBundleImageUrl}`);
+          bundleImageHTML = `<img src="${absoluteBundleImageUrl}" alt="${bundle.name}" style="max-width: 300px; height: auto; border-radius: 8px; margin: 10px 0;" />`;
+        } else {
+          console.log(`🖼️ Frontend: No valid images found for bundle "${bundle.name}"`);
+        }
+      }
+
       return `
-      <div style="margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+      <div style="margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #fff;">
+        ${bundleImageHTML}
         <h2 style="color: #333; margin: 0 0 10px 0;">${bundle.name}</h2>
         <p style="color: #666; line-height: 1.6; margin: 10px 0;">${bundle.emailBlurb}</p>
         <div style="margin: 15px 0;">
