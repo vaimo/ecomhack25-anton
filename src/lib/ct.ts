@@ -292,7 +292,7 @@ export async function createBundleProduct(bundle: any, productType: any, campaig
         attributes: [
           {
             name: 'bundleSkus',
-            value: Array.isArray(bundle.skus) ? bundle.skus.filter(sku => sku && typeof sku === 'string') : []
+            value: Array.isArray(bundle.skus) ? bundle.skus.filter((sku: any) => sku && typeof sku === 'string') : []
           },
           {
             name: 'discountPercent',
