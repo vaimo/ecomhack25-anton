@@ -208,7 +208,11 @@ export async function createBundleProduct(bundle: any, productType: any, campaig
         console.log(`🖼️ CT: Adding bundle image to product: ${absoluteImageUrl}`);
         images.push({
           url: absoluteImageUrl,
-          label: `${bundleName} - Bundle Image`
+          label: `${bundleName} - Bundle Image`,
+          dimensions: {
+            w: 800,
+            h: 600
+          }
         });
       } else {
         console.warn(`⚠️ CT: Skipping invalid bundle image URL for "${bundleName}"`);
@@ -226,7 +230,11 @@ export async function createBundleProduct(bundle: any, productType: any, campaig
           console.log(`  - Child image ${index + 1}: ${absoluteImageUrl}`);
           images.push({
             url: absoluteImageUrl,
-            label: `${bundleName} - Product ${index + 1}`
+            label: `${bundleName} - Product ${index + 1}`,
+            dimensions: {
+              w: 600,
+              h: 400
+            }
           });
         } else {
           console.warn(`  - Skipping invalid child image ${index + 1}: ${imageUrl}`);
@@ -262,7 +270,7 @@ export async function createBundleProduct(bundle: any, productType: any, campaig
     const requestPayload = {
       key: `bundle-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       productType: {
-        typeId: 'product-type',
+        typeId: 'product-type' as const,
         id: productType.id
       },
       name: {
