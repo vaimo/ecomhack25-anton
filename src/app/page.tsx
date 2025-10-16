@@ -236,13 +236,19 @@ export default function Home() {
       const currentHtml = optimizedHtml || generateCampaignHTML(selectedPlan.bundles, selectedPlan.theme);
       const campaignText = selectedPlan.theme;
 
+      console.log('🔍 Frontend: Preparing to polish email with bundle data');
+      console.log('🔍 Frontend: Selected bundles:', selectedPlan.bundles.length);
+      console.log('🔍 Frontend: Bundle creation result available:', !!bundleCreationResult);
+
       const response = await fetch('/api/polish-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           html: currentHtml,
           campaignText,
-          generateImage: true
+          generateImage: true,
+          bundles: selectedPlan.bundles,
+          bundleCreationResult: bundleCreationResult
         }),
       });
 
