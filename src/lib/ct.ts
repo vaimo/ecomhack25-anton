@@ -69,6 +69,10 @@ export async function getCampaignPlan(id: string) {
 const BUNDLE_PRODUCT_TYPE_KEY = 'ai-bundle-product-type';
 const BUNDLE_PRODUCT_TYPE_NAME = 'AI Bundle Product';
 
+// Tax Category Management
+const STANDARD_TAX_CATEGORY_KEY = 'standard-tax-category';
+const STANDARD_TAX_CATEGORY_NAME = 'Standard Tax';
+
 export async function ensureBundleProductType() {
   console.log(`🔍 CT: Checking if bundle product type exists...`);
 
@@ -142,7 +146,52 @@ export async function ensureBundleProductType() {
   }
 }
 
-export async function createBundleProduct(bundle: any, productType: any, campaignTheme: string) {
+export async function ensureStandardTaxCategory() {
+  console.log(`🔍 CT: Checking if standard tax category exists...`);
+
+  try {
+    // Try to get existing tax category
+    try {
+      const existingTaxCategory = await ct.taxCategories()
+        .withKey({ key: STANDARD_TAX_CATEGORY_KEY })
+        .get()
+        .execute();
+
+      console.log(`✅ CT: Standard tax category already exists: ${existingTaxCategory.body.id}`);
+      return existingTaxCategory.body;
+    } catch (notFoundError) {
+      // Tax category doesn't exist, create it
+      console.log(`🆕 CT: Creating standard tax category...`);
+
+      const taxCategoryResponse = await ct.taxCategories()
+        .post({
+          body: {
+            key: STANDARD_TAX_CATEGORY_KEY,
+            name: STANDARD_TAX_CATEGORY_NAME,
+            description: 'Standard tax category for AI-generated bundle products',
+            rates: [
+              {
+                name: 'Standard Rate',
+                amount: 0.20, // 20% tax rate - adjust as needed
+                includedInPrice: false,
+                country: 'US',
+                state: 'NY' // You can adjust the state/country as needed
+              }
+            ]
+          }
+        })
+        .execute();
+
+      console.log(`✅ CT: Standard tax category created: ${taxCategoryResponse.body.id}`);
+      return taxCategoryResponse.body;
+    }
+  } catch (error) {
+    console.error('❌ CT: Error ensuring standard tax category:', error);
+    throw error;
+  }
+}
+
+export async function createBundleProduct(bundle: any, productType: any, taxCategory: any, campaignTheme: string) {
   // Ensure bundle has a proper name
   const bundleName = bundle.name || `${campaignTheme} Bundle ${Date.now()}`;
   const bundleDescription = bundle.emailBlurb || `AI-generated bundle for ${campaignTheme} campaign`;
@@ -273,6 +322,10 @@ export async function createBundleProduct(bundle: any, productType: any, campaig
         typeId: 'product-type' as const,
         id: productType.id
       },
+      taxCategory: {
+        typeId: 'tax-category' as const,
+        id: taxCategory.id
+      },
       name: {
         en: sanitizedBundleName,
         'en-US': sanitizedBundleName,
@@ -351,12 +404,15 @@ export async function createBundleProducts(bundles: any[], campaignTheme: string
     // Ensure bundle product type exists
     const productType = await ensureBundleProductType();
 
+    // Ensure standard tax category exists
+    const taxCategory = await ensureStandardTaxCategory();
+
     // Create bundle products
     const createdProducts = [];
 
     for (const bundle of bundles) {
       try {
-        const product = await createBundleProduct(bundle, productType, campaignTheme);
+        const product = await createBundleProduct(bundle, productType, taxCategory, campaignTheme);
         createdProducts.push({
           ...bundle,
           productId: product.id,
